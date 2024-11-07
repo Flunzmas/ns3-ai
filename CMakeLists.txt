@@ -12,7 +12,7 @@ set(header_files
         )
 
 set(libraries_to_link
-        libcore
+        core
         )
 
 build_lib(
