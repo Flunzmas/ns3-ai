@@ -18,6 +18,7 @@
 #         Hao Yin <haoyin@uw.edu>
 
 import os
+import signal
 import subprocess
 import time
 from copy import copy
@@ -68,7 +69,22 @@ def kill_proc_tree(p, timeout=None, on_terminate=None):
     ch = [p]+p.children(recursive=True)
     for c in ch:
         try:
-            c.kill()
+            if "perf" in c.name():
+                try:
+                    print(f"Terminating `perf` process: PID={c.pid}")
+                    c.send_signal(signal.SIGTERM)  # Graceful termination
+                    c.wait(timeout=10)  # Wait for graceful termination
+                    print(f"`perf` process (PID={c.pid}) terminated successfully.")
+                except psutil.TimeoutExpired:
+                    print(f"`perf` process (PID={c.pid}) did not terminate with SIGTERM.")
+                    print(f"Sending SIGKILL to `perf` process: PID={c.pid}")
+                    try:
+                        c.kill()  # Forcefully terminate
+                    except psutil.NoSuchProcess:
+                        print(f"`perf` process (PID={c.pid}) no longer exists.")
+                        continue
+            else:
+                c.kill()
         except psutil.NoSuchProcess:
             continue
     succ, err = psutil.wait_procs(ch, timeout=timeout,
