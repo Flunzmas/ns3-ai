@@ -150,7 +150,7 @@ def run_single_ns3(path, pname, setting=None, env=None, show_output=False, profi
         base_out_dir = str(setting["outDir"]) if (setting is not None and "outDir" in setting) else "."
         perf_out_fp = Path(base_out_dir) / "perf.data"
         perf_options = f"record -o {str(perf_out_fp.resolve())} -g -e cpu-cycles,context-switches"
-        cmd = f"{perf_cmd} {perf_options} bash -c \'{cmd}\'k"  # TODO (later): add option -a for run_bulk_ns3()
+        cmd = f"{perf_cmd} {perf_options} bash -c \'{cmd}\'"  # TODO (later): add option -a for run_bulk_ns3()
     if show_output:
         proc = subprocess.Popen(
             cmd, shell=True, universal_newlines=True, cwd=exec_path, env=env)
